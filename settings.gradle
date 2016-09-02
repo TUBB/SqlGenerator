@@ -1,0 +1,1 @@
+include ':sqlgenerator-sample', ':sqlgenerator', ':sqlgenerator-annotations', ':sqlgenerator-compiler'

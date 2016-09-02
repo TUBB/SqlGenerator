@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/SqlGenerator.iml" filepath="$PROJECT_DIR$/SqlGenerator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sqlgenerator/sqlgenerator.iml" filepath="$PROJECT_DIR$/sqlgenerator/sqlgenerator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sqlgenerator-annotations/sqlgenerator-annotations.iml" filepath="$PROJECT_DIR$/sqlgenerator-annotations/sqlgenerator-annotations.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sqlgenerator-compiler/sqlgenerator-compiler.iml" filepath="$PROJECT_DIR$/sqlgenerator-compiler/sqlgenerator-compiler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sqlgenerator-sample/sqlgenerator-sample.iml" filepath="$PROJECT_DIR$/sqlgenerator-sample/sqlgenerator-sample.iml" />
+    </modules>
+  </component>
+</project>

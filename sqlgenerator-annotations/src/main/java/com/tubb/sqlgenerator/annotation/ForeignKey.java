@@ -19,7 +19,7 @@ public @interface ForeignKey {
      *
      * @return reference column
      */
-    String referenceColumnName() default "_id";
+    String referenceColumnName();
 
     String action() default "";
 }

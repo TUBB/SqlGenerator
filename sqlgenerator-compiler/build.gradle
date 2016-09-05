@@ -10,6 +10,7 @@ for (File file : sdkHandler.sdkLoader.repositories) {
         url = file.toURI()
     }
 }
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':sqlgenerator-annotations')
@@ -17,3 +18,5 @@ dependencies {
     compile deps.autocommon
     compile deps.javapoet
 }
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

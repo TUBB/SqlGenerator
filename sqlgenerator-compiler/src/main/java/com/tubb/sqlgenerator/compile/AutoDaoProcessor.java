@@ -47,6 +47,7 @@ public class AutoDaoProcessor extends AbstractProcessor {
 
     private Elements elementUtils;
     private Filer filer;
+    private boolean primaryKeyFlag = false;
 
     @Override
     public synchronized void init(ProcessingEnvironment env) {
@@ -74,6 +75,7 @@ public class AutoDaoProcessor extends AbstractProcessor {
         for (Element element : roundEnv.getElementsAnnotatedWith(Table.class)) {
             if (element.getKind() == ElementKind.CLASS) {
                 if (!element.getModifiers().contains(Modifier.ABSTRACT)) {
+                    primaryKeyFlag = false;
                     TypeElement typeElement = (TypeElement) element;
                     List<? extends Element> memberElements =
                             elementUtils.getAllMembers(typeElement);
@@ -90,7 +92,10 @@ public class AutoDaoProcessor extends AbstractProcessor {
                             info("Not support ElementKind (like contructor)");
                         }
                     }
-                    parseColumnAnnotations(clazzElements,
+                    if (!primaryKeyFlag) {
+                        error("One table must have a primary key");
+                    }
+                    parseColumnAnnotationsAndPut(clazzElements,
                             typeElement,
                             fieldElements,
                             methodElements);
@@ -120,10 +125,10 @@ public class AutoDaoProcessor extends AbstractProcessor {
         return false;
     }
 
-    private void parseColumnAnnotations(HashMap<String, ClazzElement> clazzElements,
-                                        TypeElement typeElement,
-                                        List<FieldElement> fieldElements,
-                                        List<MethodElement> methodElements) {
+    private void parseColumnAnnotationsAndPut(HashMap<String, ClazzElement> clazzElements,
+                                              TypeElement typeElement,
+                                              List<FieldElement> fieldElements,
+                                              List<MethodElement> methodElements) {
         List<FieldElement> columnElements = filterFieldElements(fieldElements, methodElements);
         if (columnElements.size() > 0) {
             String clazzName = typeElement.getSimpleName().toString();
@@ -364,20 +369,35 @@ public class AutoDaoProcessor extends AbstractProcessor {
                 }
                 fieldElement.setSerializer(serializer);
             } else if (PrimaryKey.class.getCanonicalName().equals(annotationType)) {
+                if (primaryKeyFlag) {
+                    error("One table can only have a primary key");
+                }
+                primaryKeyFlag = true;
                 FieldElement.PrimaryKey primaryKey = new FieldElement.PrimaryKey();
                 Map<? extends ExecutableElement, ? extends AnnotationValue> foreignElementValues =
                         annotationMirror.getElementValues();
-                for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry
-                        : foreignElementValues.entrySet()) {
-                    String key = entry.getKey().getSimpleName().toString();
-                    Object value = entry.getValue().getValue();
-                    if ("autoincrement".equals(key)) {
-                        boolean autoincrement = (boolean) value;
-                        primaryKey.setAutoincrement(autoincrement);
-                    } else {
-                        warning(member, key + " annotation not support yet");
+                String columnType = ColumnTypeUtils.getSQLiteColumnType(fieldElement.getType());
+                if (foreignElementValues.size() == 0) {
+                    if (!columnType.equals(ColumnTypeUtils.INTEGER_TYPE)) {
+                        primaryKey.setAutoincrement(false);
+                    }
+                } else {
+                    for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry
+                            : foreignElementValues.entrySet()) {
+                        String key = entry.getKey().getSimpleName().toString();
+                        Object value = entry.getValue().getValue();
+                        if ("autoincrement".equals(key)) {
+                            boolean autoincrement = (boolean) value;
+                            if (autoincrement && !columnType.equals(ColumnTypeUtils.INTEGER_TYPE)) {
+                                error("Column with autoincrement must be INTEGER type");
+                            }
+                            primaryKey.setAutoincrement(autoincrement);
+                        } else {
+                            warning(member, key + " annotation not support yet");
+                        }
                     }
                 }
+
                 fieldElement.setPrimaryKey(primaryKey);
             } else {
                 warning(member, annotationType + " annotation not support yet");

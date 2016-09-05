@@ -80,7 +80,14 @@ public class TableContractGenerator extends ClazzGenerator {
 
             if (TextUtils.isEmpty(baseColumnType)) { // not the base type
                 if (clazzElements.containsKey(columnElement.getType())) { // one to one
-                    columnType = ColumnTypeUtils.INTEGER_TYPE;
+                    ClazzElement mapClazzElement = clazzElements.get(columnElement.getType());
+                    List<FieldElement> fieldElements = mapClazzElement.getFieldElements();
+                    for (FieldElement fieldElement :
+                            fieldElements) {
+                        if (fieldElement.getPrimaryKey() != null) {
+                            columnType = ColumnTypeUtils.getSQLiteColumnType(fieldElement.getType());
+                        }
+                    }
                 } else if (columnElement.getSerializer() != null) { // serializer
                     columnType = ColumnTypeUtils.getSQLiteColumnType(
                             columnElement.getSerializer().getSerializedTypeCanonicalName());

@@ -35,5 +35,6 @@ dependencies {
     })
     compile rootProject.ext.deps.supportAnnotations
     compile rootProject.ext.deps.appcompat
-    testCompile 'junit:junit:4.12'
+    testCompile rootProject.ext.deps.junit
+    compile project(path: ':sqlgenerator-annotations')
 }

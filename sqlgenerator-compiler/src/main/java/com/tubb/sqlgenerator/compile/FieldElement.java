@@ -110,7 +110,7 @@ public class FieldElement extends CommonElement {
 
         private String referenceTableName;
         private String referenceColumnName = "_id";
-        private String action;
+        private String action = "";
 
         public String getAction() {
             return action;
